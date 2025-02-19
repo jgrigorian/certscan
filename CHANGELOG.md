@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 (2025-02-19)
+
+
+### Features
+
+* Initial commit ([3675803](https://github.com/jgrigorian/certscan/commit/3675803310b03be70afd72eb9e312e9d762e3c35))
+
+
+### Bug Fixes
+
+* update release-please ([58e3298](https://github.com/jgrigorian/certscan/commit/58e3298a6f15a16cf9a338f4250ec868051a1c31))
+* update release-please ([00352e0](https://github.com/jgrigorian/certscan/commit/00352e0e4881743e7648ae7738a34f95998d1364))
+
 ## [1.3.0](https://github.com/demandmedia/devops-certscan/compare/v1.2.0...v1.3.0) (2024-09-19)
 
 

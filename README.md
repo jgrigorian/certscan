@@ -3,9 +3,6 @@
 `certscan` is a cli tool that let's you interact with the TLS secrets in a kubernetes cluster. By default,
 it uses the current context in your kubeconfig file.
 
-- [Usage](#Usage)
-  - [Options](#options)
-- [Examples](#Examples)
 
 ## Usage
 ```shell
@@ -25,8 +22,8 @@ GLOBAL OPTIONS:
    --help, -h  show help
 ```
 
-### Options
-#### List
+## Options
+### List
 ```shell
 $ certscan list certificates --help
 NAME:
@@ -42,7 +39,7 @@ OPTIONS:
    --help, -h                   show help
 ```
 
-#### Show
+### Show
 ```shell
 $ certscan show certificate --help
 NAME:
@@ -72,7 +69,7 @@ $ certscan list certificates -A
 
 ### List certificates in a specific namespace
 ```shell
-certscan list certificates -n default
+$ certscan list certificates -n default
    Secret Name                        Namespace     Expiration     Issuer            Days Remaining
 
    staging-ssl-secret                 default       2024-09-18     DigiCert Inc      36
@@ -80,14 +77,14 @@ certscan list certificates -n default
 
 ### List expiring certificates in a specific namespace
 ```shell
-certscan list certificates -n default --expiring
+$ certscan list certificates -n default --expiring
    Secret Name                   Namespace     Expiration     Issuer           Days Remaining
 
    staging-ssl-secret            default       2024-09-18     DigiCert Inc     4
 ```
 ### Show certificate details
 ```shell
-certscan show certificate -s staging-ssl-secret -n default
+$ certscan show certificate -s staging-ssl-secret -n default
    staging-ssl-secret
 
    Namespace                          default

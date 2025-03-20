@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/jgrigorian/certscan/compare/v1.0.0...v1.1.0) (2025-03-20)
+
+
+### Features
+
+* **license:** Add LICENSE ([88bd83b](https://github.com/jgrigorian/certscan/commit/88bd83be52efb9e2959596d6d3815e1265aff37b))
+
 ## 1.0.0 (2025-02-19)
 
 

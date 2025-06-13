@@ -3,67 +3,59 @@ package show
 import (
 	"context"
 	"fmt"
-	"github.com/jgrigorian/certscan/common"
-	"github.com/fatih/color"
-	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/jgrigorian/certscan/common"
+
 	"github.com/urfave/cli/v2"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"math"
-	"time"
 )
 
-func Certificate(c *cli.Context) {
+func Certificate(c *cli.Context) error {
 	secretName := c.String("secret")
 	namespace := c.String("namespace")
 
-	client := common.InitClient()
-	var secrets *v1.SecretList
+	if secretName == "" {
+		return cli.Exit("Secret name is required", 1)
+	}
 
+	client, err := common.InitClient()
+	if err != nil {
+		return fmt.Errorf("failed to initialize client: %w", err)
+	}
+
+	var s *v1.Secret
 	if namespace == "" {
-		secrets, _ = client.CoreV1().Secrets("default").List(context.TODO(), metav1.ListOptions{})
+		s, err = client.CoreV1().Secrets("default").Get(context.TODO(), secretName, metav1.GetOptions{})
 	} else {
-		secrets, _ = client.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{})
+		s, err = client.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+	}
+	if err != nil {
+		return fmt.Errorf("failed to get secret: %w", err)
 	}
 
-	// Table
-	t := table.New().Border(lipgloss.HiddenBorder()).StyleFunc(func(row, col int) lipgloss.Style {
-		return lipgloss.NewStyle().Padding(0, 2)
-	})
-
-	for _, s := range secrets.Items {
-		if s.Type == "kubernetes.io/tls" {
-			certInfo := common.GetCertInfo(s.Data["tls.crt"])
-			timeUntil := time.Until(certInfo.NotAfter)
-			daysRemaining := math.Round(timeUntil.Hours() / 24)
-
-			if s.Name == secretName {
-				t.Headers(color.HiMagentaString(s.Name))
-				t.BorderRow(false)
-
-				t.Row("Namespace", color.WhiteString(s.Namespace))
-				t.Row("Valid From", color.WhiteString(certInfo.NotBefore.Format("2006-01-02")))
-				t.Row("Valid Until", color.WhiteString(certInfo.NotAfter.Format("2006-01-02")))
-				t.Row("Issuer", color.WhiteString(strings.Join(certInfo.Issuer.Organization[0:], "")))
-
-				if daysRemaining <= 10 {
-					t.Row("Days Remaining", color.RedString("%v", daysRemaining))
-				} else if (daysRemaining > 10) && (daysRemaining < 20) {
-					t.Row("Days Remaining", color.YellowString("%v", daysRemaining))
-				} else {
-					t.Row("Days Remaining", color.GreenString("%v", daysRemaining))
-				}
-
-				t.Row("Subject Alternate Name (DNS)",
-					color.WhiteString(strings.Join(certInfo.DNSNames, "\n")),
-				)
-			}
-		}
+	if s.Type != "kubernetes.io/tls" {
+		return cli.Exit("Secret is not a TLS secret", 1)
 	}
 
-	fmt.Println(t.Render())
+	certData, exists := s.Data["tls.crt"]
+	if !exists {
+		return cli.Exit("No certificate data found in secret", 1)
+	}
 
+	cert, err := common.GetCertInfo(certData)
+	if err != nil {
+		return fmt.Errorf("failed to parse certificate: %w", err)
+	}
+
+	fmt.Printf("Certificate Information for %s/%s:\n", s.Namespace, s.Name)
+	fmt.Printf("Subject: %s\n", cert.Subject.CommonName)
+	fmt.Printf("Issuer: %s\n", cert.Issuer.CommonName)
+	fmt.Printf("Valid from: %s\n", cert.NotBefore.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Valid until: %s\n", cert.NotAfter.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Serial Number: %s\n", cert.SerialNumber.String())
+	fmt.Printf("DNS Names: %v\n", cert.DNSNames)
+	fmt.Printf("IP Addresses: %v\n", cert.IPAddresses)
+
+	return nil
 }

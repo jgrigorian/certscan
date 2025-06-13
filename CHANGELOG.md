@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/jgrigorian/certscan/compare/v1.1.0...v1.2.0) (2025-06-13)
+
+
+### Features
+
+* added code improvements for cache and concurrency ([26d88af](https://github.com/jgrigorian/certscan/commit/26d88af6fd96889f0c287c4d56507ed570536ddc))
+* added code improvements for cache and concurrency ([c86c44f](https://github.com/jgrigorian/certscan/commit/c86c44f4b8dbaaf2530a955a0f73b0e09e435879))
+
 ## [1.1.0](https://github.com/jgrigorian/certscan/compare/v1.0.0...v1.1.0) (2025-03-20)
 
 

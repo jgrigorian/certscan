@@ -36,8 +36,7 @@ func main() {
 						Name:  "certificates",
 						Usage: "list certificates",
 						Action: func(c *cli.Context) error {
-							list.Certificates(c)
-							return nil
+							return list.Certificates(c)
 						},
 						Flags: []cli.Flag{
 							&cli.BoolFlag{
@@ -70,8 +69,7 @@ func main() {
 						Name:  "certificate",
 						Usage: "show certificate",
 						Action: func(c *cli.Context) error {
-							show.Certificate(c)
-							return nil
+							return show.Certificate(c)
 						},
 						Flags: []cli.Flag{
 							&cli.StringFlag{

@@ -3,18 +3,19 @@ package list
 import (
 	"context"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
-	"github.com/jgrigorian/certscan/common"
-	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"math"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
+	"github.com/fatih/color"
+	"github.com/jgrigorian/certscan/common"
+	"github.com/urfave/cli/v2"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type certInfo struct {
@@ -81,23 +82,25 @@ func Certificates(c *cli.Context) error {
 		return fmt.Errorf("failed to list secrets: %w", err)
 	}
 
+	if len(secrets.Items) == 0 {
+		color.Red("No secrets found in namespace \"%s\"", namespace)
+		return cli.Exit("", 1)
+	}
+
 	// Create a channel to collect results
 	results := make(chan certInfo, len(secrets.Items))
 	var wg sync.WaitGroup
 
 	// Process certificates concurrently
-	numWorkers := 4 // Adjust based on your system's capabilities
-	secretsPerWorker := len(secrets.Items) / numWorkers
-	if secretsPerWorker == 0 {
-		secretsPerWorker = 1
-	}
+	numWorkers := min(4, len(secrets.Items))                               // Adjust based on your system's capabilities
+	secretsPerWorker := (len(secrets.Items) + numWorkers - 1) / numWorkers // Ceiling division
 
 	for i := 0; i < numWorkers; i++ {
 		start := i * secretsPerWorker
-		end := start + secretsPerWorker
-		if i == numWorkers-1 {
-			end = len(secrets.Items)
+		if start >= len(secrets.Items) {
+			break
 		}
+		end := min(start+secretsPerWorker, len(secrets.Items))
 
 		wg.Add(1)
 		go processCertificates(secrets.Items[start:end], expiring, results, &wg)
@@ -161,4 +164,12 @@ func Certificates(c *cli.Context) error {
 
 	fmt.Println(t.Render())
 	return nil
+}
+
+// min returns the smaller of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

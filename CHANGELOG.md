@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/jgrigorian/certscan/compare/v1.2.0...v1.2.1) (2025-06-15)
+
+
+### Bug Fixes
+
+* add better error handling ([116053a](https://github.com/jgrigorian/certscan/commit/116053af92a3e4e336f0a1dfdda6aaf55a7ff850))
+
 ## [1.2.0](https://github.com/jgrigorian/certscan/compare/v1.1.0...v1.2.0) (2025-06-13)
 
 
